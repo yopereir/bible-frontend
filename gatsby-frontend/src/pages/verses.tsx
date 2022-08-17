@@ -160,8 +160,8 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
       <DropDown list={[0].concat(Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1))} placeholder={stateVerse.verse} fieldName={"verse"} onChange={handleComboBoxChange}/>
     </div>
     {(stateVerse.verse == 0)?
-      <VerseEntry verseIdentifier={""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible)}/>
-      :<VerseEntry verseIdentifier="weeee"/>
+      <VerseEntry verseIdentifier={Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1).map(verseNumber=>[""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible)])}/>
+      :<VerseEntry verseIdentifier={[""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible)]}/>
     }
     <div class="row input-container">
         <div class="col-xs-12">
