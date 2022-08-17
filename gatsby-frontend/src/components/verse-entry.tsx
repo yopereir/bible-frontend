@@ -2,6 +2,7 @@
 import * as React from "react"
 import { jsx, Themed } from "theme-ui"
 import { allBibles, getVerseNumber } from "../../utils/bibleBlockchainInteraction"
+import CheckMark from "./checkmark"
 
 type VerseEntryProps = {
   verseIdentifier: string[],
@@ -41,15 +42,11 @@ const VerseEntry = ({verseIdentifier = ["1-1-1-0"], onClick = ()=>{}}: VerseEntr
       <Themed.tr style={{trStyle}}>
         <Themed.td style={{"border-left": "1px solid #dddddd",...tdStyle}}>{verseIdentifier}</Themed.td>
         <Themed.td style={tdStyle}>{allBibles[0].verses[getVerseNumber(verseIdentifier)].text}</Themed.td>
-        <Themed.td style={tdStyle}>No</Themed.td>
-        <Themed.td style={tdStyle}>No</Themed.td>
+        <Themed.td style={tdStyle}><CheckMark/></Themed.td>
+        <Themed.td style={tdStyle}><CheckMark/></Themed.td>
       </Themed.tr>)
       }
     </Themed.table>
-    <Themed.div style={{display: "flex", justifyContent: "space-evenly"}}>
-      <Themed.p>{verseIdentifier}</Themed.p>
-      <Themed.p>{verseIdentifier}</Themed.p>
-    </Themed.div>
     </React.Fragment>
   )
 }

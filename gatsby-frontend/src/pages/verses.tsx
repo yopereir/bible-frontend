@@ -45,7 +45,8 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
   const [colorMode, setColorMode] = useColorMode()
   const isDark = colorMode === `dark`
   const [bibles, books] = [ImportFunctions.allBibles.map(bible=>bible.name),ImportFunctions.allBibleBooks.map(book=>book.Name)];
-  const defaultNetwork = params.get("network")?params.get("network")?.toLowerCase():"polygon-mumbai";
+  const validNetworks = ["polygon-mumbai", "ethereum-mainnet"];
+  const defaultNetwork = params.get("network")?((validNetworks.map(network=>network.toLowerCase()).indexOf(params.get("network").toLowerCase()) != -1)?validNetworks[validNetworks.map(network=>network.toLowerCase()).indexOf(params.get("network").toLowerCase())]:validNetworks[0]):validNetworks[0];
   const defaultBible = params.get("bible")?((bibles.map(bible=>bible.toLowerCase()).indexOf(params.get("bible").toLowerCase()) != -1)?bibles[bibles.map(bible=>bible.toLowerCase()).indexOf(params.get("bible").toLowerCase())]:bibles[0]):bibles[0];
   const defaultBook = params.get("book")?((books.map(book=>book.toLowerCase()).indexOf(params.get("book").toLowerCase()) != -1)?books[books.map(book=>book.toLowerCase()).indexOf(params.get("book").toLowerCase())]:books[0]):books[0];
   const defaultChapter = (0 < parseInt(params.get("chapter")) && parseInt(params.get("chapter")) <= ImportFunctions.getNumberOfChaptersInBook(defaultBook))?parseInt(params.get("chapter")):1;
@@ -143,62 +144,28 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
         <div sx={{textAlign: "center", mt: 4, mb: [6, 6, 7] }}>
           <animated.div style={titleProps}>
             <Heading as="h1" variant="styles.h1">
-              Bible Verses
+              {defaultNetwork}
             </Heading>
           </animated.div>
           <animated.div style={infoProps}>
             <Themed.p sx={{ mb: 0, mt: 4 }}>{date}</Themed.p>
-<form class="gform" method="POST" data-email="yohann.pereira28@gmail.com" onSubmit={handleSubmit}>
-  <div class="container" style={{styles}}>
-    <div class="row">
-        <h4 style={{"text-align":"center"}}>We'd love to hear from you!</h4>
-    </div>
-    <div style={{display: "flex", justifyContent: "space-evenly"}}>
-      <DropDown list={bibles} placeholder={stateVerse.bible} shouldSortList={true} fieldName={"bible"} onChange={handleComboBoxChange}/>
-      <DropDown list={books} placeholder={stateVerse.book} fieldName={"book"} onChange={handleComboBoxChange}/>
-      <DropDown list={Array(ImportFunctions.getNumberOfChaptersInBook(stateVerse.book)).fill().map((v,i)=>i+1)} placeholder={stateVerse.chapter} fieldName={"chapter"} onChange={handleComboBoxChange}/>
-      <DropDown list={[0].concat(Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1))} placeholder={stateVerse.verse} fieldName={"verse"} onChange={handleComboBoxChange}/>
-    </div>
-    {(stateVerse.verse == 0)?
-      <VerseEntry verseIdentifier={Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1).map(verseNumber=>[""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible)])}/>
-      :<VerseEntry verseIdentifier={[""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible)]}/>
-    }
-    <div class="row input-container">
-        <div class="col-xs-12">
-          <div class="styled-input wide">
-            <input id="name" name="name" type="text" required />
-            <label>Name</label> 
-          </div>
-          <div class="styled-input wide">
-            <input id="companyname" name="companyname" type="text" />
-            <label>Company (optional)</label> 
-          </div>
-        </div>
-        <div class="col-md-6 col-sm-12">
-          <div class="styled-input">
-            <input id="email" name="email" type="email" required />
-            <label>Email</label> 
-          </div>
-        </div>
-        <div class="col-md-6 col-sm-12">
-          <div class="styled-input" style={{float:"right"}}>
-            <input id="phonenumber" name="phonenumber" type="text" />
-            <label>Phone Number (optional)</label> 
-          </div>
-        </div>
-        <div class="col-xs-12">
-          <div class="styled-input wide">
-            <textarea id="message" name="message" required></textarea>
-            <label>Message</label>
-          </div>
-        </div>
-        <div class="col-xs-12">
-          <input type="submit" value="Send Email" style={{"maxWidth":"25vw"}} class="btn-lrg submit-btn"/>
-        </div>
-    </div>
-  </div>
-</form>
-
+              <form class="gform" method="POST" data-email="yohann.pereira28@gmail.com" onSubmit={handleSubmit}>
+                <div class="container" style={{styles}}>
+                  <div class="row">
+                      <h4 style={{"text-align":"center"}}>Track all the bible verses that are deployed!</h4>
+                  </div>
+                  <div style={{display: "flex", justifyContent: "space-evenly"}}>
+                    <DropDown list={bibles} placeholder={stateVerse.bible} shouldSortList={true} fieldName={"bible"} onChange={handleComboBoxChange}/>
+                    <DropDown list={books} placeholder={stateVerse.book} fieldName={"book"} onChange={handleComboBoxChange}/>
+                    <DropDown list={Array(ImportFunctions.getNumberOfChaptersInBook(stateVerse.book)).fill().map((v,i)=>i+1)} placeholder={stateVerse.chapter} fieldName={"chapter"} onChange={handleComboBoxChange}/>
+                    <DropDown list={[0].concat(Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1))} placeholder={stateVerse.verse} fieldName={"verse"} onChange={handleComboBoxChange}/>
+                  </div>
+                  {(stateVerse.verse == 0)?
+                    <VerseEntry verseIdentifier={Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1).map(verseNumber=>[""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible)])}/>
+                    :<VerseEntry verseIdentifier={[""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible)]}/>
+                  }
+                </div>
+              </form>
           </animated.div>
         </div>
       </Container>
