@@ -6,3 +6,6 @@
 	path = gatsby-frontend/data
 	url = https://github.com/yopereir/bible-data.git
 	branch = master
+[submodule "data"]
+	path = data
+	url = https://github.com/yopereir/bible-data.git
