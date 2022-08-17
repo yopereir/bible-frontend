@@ -1,0 +1,8 @@
+[submodule "basic-gatsby-frontend/data"]
+	path = basic-gatsby-frontend/data
+	url = https://github.com/yopereir/bible-data.git
+	branch = master
+[submodule "gatsby-frontend/data"]
+	path = gatsby-frontend/data
+	url = https://github.com/yopereir/bible-data.git
+	branch = master
