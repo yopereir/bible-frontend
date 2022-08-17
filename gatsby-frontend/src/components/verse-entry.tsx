@@ -4,6 +4,7 @@ import { jsx, Themed } from "theme-ui"
 import { allBibles, getVerseNumber } from "../../utils/bibleBlockchainInteraction"
 import CheckMark from "./checkmark"
 import styles from "./css/table.css"
+import { ethers } from "ethers";
 
 type VerseEntryProps = {
   verseIdentifier: string[],
