@@ -3,20 +3,16 @@ import * as React from "react"
 import { jsx, Themed } from "theme-ui"
 import { allBibles, getVerseNumber } from "../../utils/bibleBlockchainInteraction"
 import CheckMark from "./checkmark"
+import styles from "./css/table.css"
 
 type VerseEntryProps = {
   verseIdentifier: string[],
   onClick: Function
 }
-const tableStyle ={
-  width: "80%",
-  "margin": "auto",
-  "text-align":"center",
-  "table-layout":"fixed",
-  border: "1px solid #dddddd",
-  "border-collapse": "collapse"
-}
+
 const trStyle = {
+  width: "100%",
+  margin: "auto",
   display: "flex",
   flexDirection: "column",
   flex: "1 1 1 1em"
@@ -27,26 +23,25 @@ const tdStyle = {
 }
 
 const VerseEntry = ({verseIdentifier = ["1-1-1-0"], onClick = ()=>{}}: VerseEntryProps) => {
-  console.log()
   return (
     <React.Fragment>
-    <Themed.table >
-      <Themed.tr style={{trStyle}}>
-        <Themed.th style={{"border-top": "1px solid #dddddd","border-left": "1px solid #dddddd",...tdStyle}}>Verse Identifier</Themed.th>
-        <Themed.th style={{"border-top": "1px solid #dddddd",...tdStyle}}>Verse</Themed.th>
-        <Themed.th style={{"border-top": "1px solid #dddddd",...tdStyle}}>Is Deployed</Themed.th>
-        <Themed.th style={{"border-top": "1px solid #dddddd",...tdStyle}}>Is Locked</Themed.th>
-      </Themed.tr>
+    <table style={{styles}}>
+      <tr>
+        <th style={{"border-top": "1px solid #dddddd","border-left": "1px solid #dddddd",...tdStyle}}>Verse Identifier</th>
+        <th style={{"border-top": "1px solid #dddddd",...tdStyle}}>Verse</th>
+        <th style={{"border-top": "1px solid #dddddd",...tdStyle}}>Is Deployed</th>
+        <th style={{"border-top": "1px solid #dddddd",...tdStyle}}>Is Locked</th>
+      </tr>
       {
       verseIdentifier.map(verseIdentifier=>
-      <Themed.tr style={{trStyle}}>
-        <Themed.td style={{"border-left": "1px solid #dddddd",...tdStyle}}>{verseIdentifier}</Themed.td>
-        <Themed.td style={tdStyle}>{allBibles[0].verses[getVerseNumber(verseIdentifier)].text}</Themed.td>
-        <Themed.td style={tdStyle}><CheckMark/></Themed.td>
-        <Themed.td style={tdStyle}><CheckMark/></Themed.td>
-      </Themed.tr>)
+      <tr style={{trStyle}}>
+        <td style={{"border-left": "1px solid #dddddd",...tdStyle}}>{verseIdentifier}</td>
+        <td style={tdStyle}>{allBibles[0].verses[getVerseNumber(verseIdentifier)].text}</td>
+        <td style={tdStyle}><CheckMark isChecked={false}/></td>
+        <td style={tdStyle}><CheckMark isChecked={false}/></td>
+      </tr>)
       }
-    </Themed.table>
+    </table>
     </React.Fragment>
   )
 }
