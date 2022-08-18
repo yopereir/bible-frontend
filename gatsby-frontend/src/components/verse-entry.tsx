@@ -6,10 +6,12 @@ import CheckMark from "./checkmark"
 import styles from "./css/table.css"
 
 type VerseEntryProps = {
-  verseIdentifier: string[],
-  isDeployed: boolean,
-  isLocked: boolean,
-  onClick: Function
+  verses: {
+    identifier: string,
+    isDeployed: boolean,
+    isLocked: boolean
+  }[],
+  onClick?: Function
 }
 
 const trStyle = {
@@ -24,7 +26,7 @@ const tdStyle = {
   borderRight: "1px solid #dddddd"
 }
 
-const VerseEntry = ({verseIdentifier = ["1-1-1-0"], isDeployed = false, isLocked = false, onClick = ()=>{}}: VerseEntryProps) => {
+const VerseEntry = ({verses = [{identifier: "1-1-1-0", isDeployed: false, isLocked: false}], onClick = ()=>{}}: VerseEntryProps) => {
   return (
     <React.Fragment>
     <table style={{styles}}>
@@ -38,12 +40,12 @@ const VerseEntry = ({verseIdentifier = ["1-1-1-0"], isDeployed = false, isLocked
     </thead>
     <tbody>
       {
-      verseIdentifier.map(verseIdentifier=>
-      <tr key={verseIdentifier} style={{trStyle}}>
-        <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}>{verseIdentifier}</td>
-        <td style={tdStyle}>{allBibles[0].verses[getVerseNumber(verseIdentifier)].text}</td>
-        <td style={tdStyle}><CheckMark isChecked={isDeployed}/></td>
-        <td style={tdStyle}><CheckMark isChecked={isLocked}/></td>
+      verses.map(verse=>
+      <tr key={verse.identifier} style={{trStyle}}>
+        <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}>{verse.identifier}</td>
+        <td style={tdStyle}>{allBibles[0].verses[getVerseNumber(verse.identifier)].text}</td>
+        <td style={tdStyle}><CheckMark isChecked={verse.isDeployed}/></td>
+        <td style={tdStyle}><CheckMark isChecked={verse.isLocked}/></td>
       </tr>)
       }
     </tbody>

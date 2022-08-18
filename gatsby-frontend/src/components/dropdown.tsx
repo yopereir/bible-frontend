@@ -7,17 +7,17 @@ import styles from "./css/dropdown.css"
 type DropDownProps = {
   list: string[],
   placeholder: string,
-  shouldSortList: boolean,
+  shouldSortList?: boolean,
   fieldName: string,
-  onChange: Function
+  onChange?: Function
 }
 
 const DropDown = ({list = [], placeholder = "", shouldSortList = false, fieldName = "", onChange = ()=>{}}: DropDownProps) => {
   return (
     <React.Fragment>
-    <Themed.div class="row">
-      <Themed.div class="col-sm-3">
-        <select class="form-control" onChange={(e)=>onChange(fieldName,e.target.value)}>
+    <Themed.div className="row">
+      <Themed.div className="col-sm-3">
+        <select className="form-control" onChange={(e)=>onChange(fieldName,e.target.value)}>
           {list.map(listItem=>(listItem == placeholder)?<option key={listItem} value={listItem} selected>{listItem}</option>:<option key={listItem} value={listItem}>{listItem}</option>)}
         </select>
       </Themed.div>

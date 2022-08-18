@@ -15,15 +15,15 @@ const CheckMark = ({isToggleable = false, isChecked = false, onChange = ()=>{}}:
   return (
     <React.Fragment>
         {isChecked?
-        <span style={checkStyles} class="checkmark" alt="yes">
-            <div class="checkmark_circle"></div>
-            <div class="checkmark_stem"></div>
-            <div class="checkmark_kick"></div>
+        <span style={checkStyles} className="checkmark" alt="yes">
+            <div className="checkmark_circle"></div>
+            <div className="checkmark_stem"></div>
+            <div className="checkmark_kick"></div>
         </span>:
-        <span styles={crossStyles} class="crosssign" alt="no">
-            <div class="crosssign_circle"></div>
-            <div class="crosssign_stem"></div>
-            <div class="crosssign_stem2"></div>
+        <span styles={crossStyles} className="crosssign" alt="no">
+            <div className="crosssign_circle"></div>
+            <div className="crosssign_stem"></div>
+            <div className="crosssign_stem2"></div>
         </span>
         }
     </React.Fragment>
