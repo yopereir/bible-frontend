@@ -3,17 +3,14 @@ import * as React from "react"
 import { Flex, jsx, Container, Heading, Themed, useColorMode } from "theme-ui"
 import { animated, useSpring, config } from "react-spring"
 import { useStaticQuery, graphql, Link, navigate } from "gatsby"
-import { MDXRenderer } from "gatsby-plugin-mdx"
 import { GatsbyImage, IGatsbyImageData } from "gatsby-plugin-image"
-import HeaderBackground from "../components/header-background"
 import LeftArrow from "../assets/left-arrow"
 import useEmiliaConfig from "../hooks/use-emilia-config"
 import ColorModeToggle from "../components/colormode-toggle"
 import DropDown from "../components/dropdown"
 import VerseEntry from "../components/verse-entry"
-import styles from "./css/contact.css"
-import fetch from 'node-fetch';
 import * as ImportFunctions from "../../utils/bibleBlockchainInteraction"
+import { ethers } from "ethers";
 
 type VersesPageProps = {
   title: string
@@ -29,14 +26,20 @@ type AvatarStaticQuery = {
     }
   }
 }
-
-const allowOnlyValidCharacters = (subjectString: String) => {
-  let parsedString = ""
-  for (let x = 0; x < subjectString.length; x++)
-  {
-    parsedString = parsedString.concat(("abcdefghijklmnopqrstuvwxyz.,;:! 1234567890@".includes(subjectString.charAt(x).toLowerCase()))?subjectString.charAt(x):"")
-  }
-  return parsedString
+async function getVerseStatus(network = "ethereum-goerli") {
+  //const provider = new ethers.providers.Web3Provider(window.ethereum)
+  //const provider = new ethers.providers.EtherscanProvider(ethers.providers.getNetwork("goerli"));
+  //const provider = new ethers.providers.AlchemyProvider("maticmum", "APP_KEY");
+  const provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com");
+  console.log(provider);
+  //const signer = new ethers.Wallet("WALLET_PRIVATE_KEY", provider);
+  //const abi = ['function BIBLE_VERSES(string verseIdentifier) public view returns (tuple(string BIBLE_VERSE, bool BIBLE_VERSE_LOCKED) BibleVerse)'];
+  const abi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"ADMINS","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"","type":"string"}],"name":"BIBLE_VERSES","outputs":[{"internalType":"string","name":"BIBLE_VERSE","type":"string"},{"internalType":"bool","name":"BIBLE_VERSE_LOCKED","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"SUPER_ADMIN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newAdminAddress","type":"address"},{"internalType":"bool","name":"shouldSetAsAdmin","type":"bool"}],"name":"addNewAdmin","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"lockBibleVerse","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"string","name":"verse","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"updateBibleVerse","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"nonpayable","type":"function"}]
+  const Bible = new ethers.Contract("0xfded1e73b71c1cc2f177789bcc0db3fa55912eda", abi, provider); // use signer instead of provider for write/sending ETH transactions
+  console.log(await Bible.BIBLE_VERSES("1-1-1-0"));
+  //await provider.send("eth_requestAccounts", []); // connect to signer account. used only for write operations or sending ETH
+  //console.log((await provider.getBalance("ethers.eth")).toString());
+  //await (await provider.sendTransaction(tx)).wait();
 }
 
 const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) => {
@@ -45,7 +48,7 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
   const [colorMode, setColorMode] = useColorMode()
   const isDark = colorMode === `dark`
   const [bibles, books] = [ImportFunctions.allBibles.map(bible=>bible.name),ImportFunctions.allBibleBooks.map(book=>book.Name)];
-  const validNetworks = ["polygon-mumbai", "ethereum-mainnet"];
+  const validNetworks = ["polygon-mumbai", "ethereum-mainnet", "ethereum-goerli"];
   const defaultNetwork = params.get("network")?((validNetworks.map(network=>network.toLowerCase()).indexOf(params.get("network").toLowerCase()) != -1)?validNetworks[validNetworks.map(network=>network.toLowerCase()).indexOf(params.get("network").toLowerCase())]:validNetworks[0]):validNetworks[0];
   const defaultBible = params.get("bible")?((bibles.map(bible=>bible.toLowerCase()).indexOf(params.get("bible").toLowerCase()) != -1)?bibles[bibles.map(bible=>bible.toLowerCase()).indexOf(params.get("bible").toLowerCase())]:bibles[0]):bibles[0];
   const defaultBook = params.get("book")?((books.map(book=>book.toLowerCase()).indexOf(params.get("book").toLowerCase()) != -1)?books[books.map(book=>book.toLowerCase()).indexOf(params.get("book").toLowerCase())]:books[0]):books[0];
@@ -79,19 +82,6 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
   })
   const infoProps = useSpring({ config: config.slow, delay: 500, from: { opacity: 0 }, to: { opacity: 1 } })
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    fetch("https://script.google.com/macros/s/AKfycbyHyCc0zzdfJQ0MSlmTqIs3Pz22VWqOnx0sYgK5H1wpIssO9bxIvrlzUNq9YDCIYBwT/exec", {
-      "headers": {"content-type": "application/x-www-form-urlencoded",},
-      "body": "name="+encodeURIComponent(allowOnlyValidCharacters(e.target.name.value))
-      +"&companyname="+encodeURIComponent(allowOnlyValidCharacters(e.target.companyname.value))
-      +"&email="+encodeURIComponent(allowOnlyValidCharacters(e.target.email.value))
-      +"&phonenumber="+encodeURIComponent(allowOnlyValidCharacters(e.target.phonenumber.value))
-      +"&message="+encodeURIComponent(allowOnlyValidCharacters(e.target.message.value)),
-      "method": "POST"
-    });
-    navigate("/thankyou");
-  };
   const handleComboBoxChange = (key, value) =>{
     let tempState = {...stateVerse}
     switch(key){
@@ -102,6 +92,7 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
     tempState[key]=value;
     setStateVerse(tempState);
   }
+  React.useEffect(async ()=>{await getVerseStatus(defaultNetwork)}); 
   return (
     <Flex as="header" variant="layout.header">
       <div style={{ top: "1rem", right: "1rem", position: "absolute", "textAlign": `right`}}><ColorModeToggle isDark={isDark} toggle={toggleColorMode} /></div>
@@ -149,10 +140,8 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
           </animated.div>
           <animated.div style={infoProps}>
             <Themed.p sx={{ mb: 0, mt: 4 }}>{date}</Themed.p>
-              <form class="gform" method="POST" data-email="yohann.pereira28@gmail.com" onSubmit={handleSubmit}>
-                <div class="container" style={{styles}}>
                   <div class="row">
-                      <h4 style={{"text-align":"center"}}>Track all the bible verses that are deployed!</h4>
+                      <h4 style={{textAlign:"center"}}>Track all the bible verses that are deployed!</h4>
                   </div>
                   <div style={{display: "flex", justifyContent: "space-evenly"}}>
                     <DropDown list={bibles} placeholder={stateVerse.bible} shouldSortList={true} fieldName={"bible"} onChange={handleComboBoxChange}/>
@@ -164,8 +153,6 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
                     <VerseEntry verseIdentifier={Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1).map(verseNumber=>[""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible)])}/>
                     :<VerseEntry verseIdentifier={[""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible)]}/>
                   }
-                </div>
-              </form>
           </animated.div>
         </div>
       </Container>

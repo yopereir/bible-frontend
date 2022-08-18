@@ -18,7 +18,7 @@ const DropDown = ({list = [], placeholder = "", shouldSortList = false, fieldNam
     <Themed.div class="row">
       <Themed.div class="col-sm-3">
         <select class="form-control" onChange={(e)=>onChange(fieldName,e.target.value)}>
-          {list.map(listItem=>(listItem == placeholder)?<option value={listItem} selected>{listItem}</option>:<option value={listItem}>{listItem}</option>)}
+          {list.map(listItem=>(listItem == placeholder)?<option key={listItem} value={listItem} selected>{listItem}</option>:<option key={listItem} value={listItem}>{listItem}</option>)}
         </select>
       </Themed.div>
     </Themed.div>
