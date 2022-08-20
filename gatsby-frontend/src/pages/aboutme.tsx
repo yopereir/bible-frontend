@@ -10,6 +10,7 @@ import LeftArrow from "../assets/left-arrow"
 import AboutMeMDX from "../texts/about-me"
 import useEmiliaConfig from "../hooks/use-emilia-config"
 import ColorModeToggle from "../components/colormode-toggle"
+import FAQ from '../components/faq'
 
 type AboutMePageProps = {
   title: string
@@ -100,6 +101,7 @@ const AboutMePage = ({ title, areas, description = ``, date }: AboutMePageProps)
               <AboutMeMDX />
           </animated.div>
         </div>
+        <FAQ Questions={[{question: "What is blockchain", answer: "Google it"},{question: "Will this project be useful", answer: "God knows"}]}/>
       </Container>
     </Flex>
   )
