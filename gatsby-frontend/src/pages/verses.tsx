@@ -9,6 +9,7 @@ import useEmiliaConfig from "../hooks/use-emilia-config"
 import ColorModeToggle from "../components/colormode-toggle"
 import DropDown from "../components/dropdown"
 import VerseEntry from "../components/verse-entry"
+import loadingStyle from "../components/css/loading.css"
 import * as ImportFunctions from "../../utils/bibleBlockchainInteraction"
 import { ethers } from "ethers";
 
@@ -58,6 +59,8 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
   const [versesState, setVersesState] = React.useState((stateVerse.verse == 0)?Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1).map(verseNumber=>{return {identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: false, isLocked: false}})
   :[{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: false, isLocked: false}])
 
+  const [isLoading, setLoadingState] = React.useState(true);
+
   const toggleColorMode = (e: React.SyntheticEvent) => {
     e.preventDefault()
     setColorMode(isDark ? `light` : `dark`)
@@ -100,6 +103,7 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
   const Bible = new ethers.Contract("0xfded1e73b71c1cc2f177789bcc0db3fa55912eda", abi, provider);
 
   React.useEffect(()=>{(async ()=>{
+    setLoadingState(true);
     let res = [{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED, isLocked: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED}];
     if (stateVerse.verse == 0) {
       let tempArray = Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1);
@@ -112,7 +116,8 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
       res = verseArray;
     }
     else {res = [{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED, isLocked: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED}]}
-    setVersesState(res)
+    setVersesState(res);
+    setLoadingState(false);
     console.log(versesState);
   })()},[stateVerse]);
   return (
@@ -171,7 +176,7 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
                     <DropDown list={Array(ImportFunctions.getNumberOfChaptersInBook(stateVerse.book)).fill().map((v,i)=>i+1+"")} placeholder={stateVerse.chapter+""} fieldName={"chapter"} onChange={handleComboBoxChange}/>
                     <DropDown list={[0+""].concat(Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1+""))} placeholder={stateVerse.verse+""} fieldName={"verse"} onChange={handleComboBoxChange}/>
                   </div>
-                  <VerseEntry verses={versesState}/>
+                  {(isLoading)?<Themed.div className="loading" style={loadingStyle}>Loading</Themed.div>:<VerseEntry verses={versesState}/>}
           </animated.div>
         </div>
       </Container>
