@@ -44,11 +44,13 @@ const VerseDialog = ({verseIdentifier = "", isDeployed = false, isLocked = false
             <div className="crosssign_stem2" style={{width: ".2em", height: "2em"}}></div>
         </span>
       </Themed.div>
-      <table style={{styles}}>
+      <Themed.div style={{position: "relative", bottom: "0%"}}>
+      <Themed.p>Heading</Themed.p>
+      <table style={{margin: "auto",width: "90%",...styles}}>
         <tbody>
           <tr key={verseIdentifier} style={{trStyle}}>
-            <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Verse Identifier</Themed.div></td>
-            <td style={tdStyle}><Themed.div>{verseIdentifier}</Themed.div></td>
+            <td style={{borderLeft: "1px solid #dddddd",borderTop: "1px solid #dddddd",...tdStyle}}><Themed.div>Verse Identifier</Themed.div></td>
+            <td style={{borderTop: "1px solid #dddddd",...tdStyle}}><Themed.div>{verseIdentifier}</Themed.div></td>
           </tr>
           <tr key={verseIdentifier} style={{trStyle}}>
             <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Reference Verse</Themed.div></td>
@@ -62,19 +64,12 @@ const VerseDialog = ({verseIdentifier = "", isDeployed = false, isLocked = false
             <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Is Locked</Themed.div></td>
             <td style={tdStyle}><Themed.div><CheckMark isChecked={isLocked}/></Themed.div></td>
           </tr>
-          <tr key={verseIdentifier} style={{trStyle}}>
-            <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>{verseIdentifier}</Themed.div></td>
-            <td style={tdStyle}><Themed.div>{allBibles[0].verses[getVerseNumber(verseIdentifier)].text}</Themed.div></td>
-            <td style={tdStyle}><Themed.div><CheckMark isChecked={isDeployed}/></Themed.div></td>
-            <td style={tdStyle}><Themed.div><CheckMark isChecked={isLocked}/></Themed.div></td>
-          </tr>
         </tbody>
       </table>
-      <Themed.div style={{position: "relative", bottom: "-50%"}}>
       <button type="submit" value="Send Email" style={{...crossStyles, maxWidth:"25vw"}} class="btn-lrg submit-btn">Deploy</button>
-          <Themed.p>Support the project by donating:</Themed.p>
-          <Themed.p>ETH: {useSiteMetadata().donationAddressEth}</Themed.p>
-          <Themed.p>Notice an issue? Let us know or contribute by fixing it yourself on <a target="_blank" rel="noopener noreferrer" href="https://github.com/yopereir/bible-frontend/tree/master/gatsby-frontend">Github</a>.</Themed.p>
+          <Themed.p style={{margin: "0"}}>Support the project by donating:</Themed.p>
+          <Themed.p style={{margin: "0"}}>ETH: {useSiteMetadata().donationAddressEth}</Themed.p>
+          <Themed.p style={{margin: "0"}}>Notice an issue? Let us know or contribute by fixing it yourself on <a target="_blank" rel="noopener noreferrer" href="https://github.com/yopereir/bible-frontend/tree/master/gatsby-frontend">Github</a>.</Themed.p>
       </Themed.div>
     </Themed.div>
     </div>
