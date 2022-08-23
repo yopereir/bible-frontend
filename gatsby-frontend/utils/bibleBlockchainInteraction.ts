@@ -37,6 +37,10 @@ export function getVerseNumber(verseIdentifier: String) {
     return bibles.Bibles[0].verses.indexOf(bibles.Bibles[0].verses.filter((verse: verseType)=>verse.book+"-"+verse.chapter+"-"+verse.verse+"-"+bibles.Bibles[0].id == verseIdentifier)[0]);
 }
 
+export function getVerseIdentifiers(verseIdentifier: String) {
+    return verseIdentifier.match(/[^-]/g)
+}
+
 export function getNumberOfChaptersInBook(bookName: String) {
     const bookNumber = getBookNumber(bookName);
     return bibles.Bibles[0].verses.filter((verse: verseType)=>verse.book == bookNumber).pop().chapter
