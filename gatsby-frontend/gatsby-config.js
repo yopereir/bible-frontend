@@ -1,6 +1,7 @@
 require(`dotenv`).config()
 
 const shouldAnalyseBundle = process.env.ANALYSE_BUNDLE
+const donationAddressEth = process.env.DONATION_ADDRESS_ETH
 
 module.exports = {
   siteMetadata: {
@@ -15,6 +16,7 @@ module.exports = {
     siteLanguage: `en`,
     siteImage: `/banner.jpg`,
     author: `@lekoarts_de`,
+    donationAddressEth: ""+donationAddressEth
   },
   plugins: [
     {

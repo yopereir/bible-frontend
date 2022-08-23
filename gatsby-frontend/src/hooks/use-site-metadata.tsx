@@ -30,6 +30,7 @@ const useSiteMetadata = () => {
           siteLanguage
           siteImage
           author
+          donationAddressEth
         }
       }
     }

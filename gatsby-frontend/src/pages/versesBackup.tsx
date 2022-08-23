@@ -9,7 +9,6 @@ import useEmiliaConfig from "../hooks/use-emilia-config"
 import ColorModeToggle from "../components/colormode-toggle"
 import DropDown from "../components/dropdown"
 import VerseEntry from "../components/verse-entry"
-import loadingStyle from "../components/css/loading.css"
 import * as ImportFunctions from "../../utils/bibleBlockchainInteraction"
 import { ethers } from "ethers";
 
@@ -59,8 +58,6 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
   const [versesState, setVersesState] = React.useState((stateVerse.verse == 0)?Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1).map(verseNumber=>{return {identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: false, isLocked: false}})
   :[{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: false, isLocked: false}])
 
-  const [isLoading, setLoadingState] = React.useState(true);
-
   const toggleColorMode = (e: React.SyntheticEvent) => {
     e.preventDefault()
     setColorMode(isDark ? `light` : `dark`)
@@ -101,24 +98,14 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
   const provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com");
   const abi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"ADMINS","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"","type":"string"}],"name":"BIBLE_VERSES","outputs":[{"internalType":"string","name":"BIBLE_VERSE","type":"string"},{"internalType":"bool","name":"BIBLE_VERSE_LOCKED","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"SUPER_ADMIN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newAdminAddress","type":"address"},{"internalType":"bool","name":"shouldSetAsAdmin","type":"bool"}],"name":"addNewAdmin","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"lockBibleVerse","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"string","name":"verse","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"updateBibleVerse","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"nonpayable","type":"function"}]
   const Bible = new ethers.Contract("0xfded1e73b71c1cc2f177789bcc0db3fa55912eda", abi, provider);
-
   React.useEffect(()=>{(async ()=>{
-    setLoadingState(true);
-    let res = [{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED, isLocked: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED}];
-    if (stateVerse.verse == 0) {
-      let tempArray = Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1);
-      let verseArray = []
-      for(let verseNumber of tempArray){
-        let tempIdentifier = ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible);
-        let tempResult = (await Bible.BIBLE_VERSES(tempIdentifier)).BIBLE_VERSE_LOCKED;
-        verseArray = verseArray.concat([{identifier: tempIdentifier, isDeployed: tempResult, isLocked: (await Bible.BIBLE_VERSES(tempIdentifier)).BIBLE_VERSE_LOCKED}]);
-      }
-      res = verseArray;
-    }
-    else {res = [{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED, isLocked: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED}]}
-    setVersesState(res);
-    setLoadingState(false);
+    let res = (stateVerse.verse == 0)
+    ?Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1).map(verseNumber=>{let result = (async()=>(await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED)();return {identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: result, isLocked: result}})
+    :[{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED, isLocked: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED}]
+    setVersesState(res)
+    console.log(versesState);
   })()},[stateVerse]);
+  
   return (
     <Flex as="header" variant="layout.header">
       <div style={{ top: "1rem", right: "1rem", position: "absolute", "textAlign": `right`}}><ColorModeToggle isDark={isDark} toggle={toggleColorMode} /></div>
@@ -175,7 +162,7 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
                     <DropDown list={Array(ImportFunctions.getNumberOfChaptersInBook(stateVerse.book)).fill().map((v,i)=>i+1+"")} placeholder={stateVerse.chapter+""} fieldName={"chapter"} onChange={handleComboBoxChange}/>
                     <DropDown list={[0+""].concat(Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1+""))} placeholder={stateVerse.verse+""} fieldName={"verse"} onChange={handleComboBoxChange}/>
                   </div>
-                  {(isLoading)?<Themed.div className="loading" style={loadingStyle}>Loading</Themed.div>:<VerseEntry verses={versesState}/>}
+                  <VerseEntry verses={versesState}/>
           </animated.div>
         </div>
       </Container>
