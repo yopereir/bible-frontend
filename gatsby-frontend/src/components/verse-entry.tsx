@@ -49,7 +49,7 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
         <Themed.div style={{position: "relative", bottom: "0%"}}>
         {/* Heading */}
         <Themed.p>{(!blockchainQuery.BIBLE_VERSE_LOCKED)
-        ?((blockchainQuery.BIBLE_VERSE == allBibles[0].verses[getVerseNumber(verseIdentifier)].text)
+        ?((blockchainQuery.BIBLE_VERSE == allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text)
           ?"Verse was deployed but not locked"
           :"Verse is not deployed")
         :"Verse is locked"}</Themed.p>
@@ -62,7 +62,7 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
             </tr>
             <tr key={verseIdentifier} style={{trStyle}}>
               <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Reference Verse</Themed.div></td>
-              <td style={tdStyle}><Themed.div>{allBibles[0].verses[getVerseNumber(verseIdentifier)].text}</Themed.div></td>
+              <td style={tdStyle}><Themed.div>{allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text}</Themed.div></td>
             </tr>
             <tr key={verseIdentifier} style={{trStyle}}>
               <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Verse on Blockchain</Themed.div></td>
@@ -112,8 +112,8 @@ const VerseEntry = ({verses = [{identifier: "1-1-1-0", blockchainQuery: {}}], on
       verses.map(verse=>
       <tr key={verse.identifier} style={{trStyle}}>
         <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.blockchainQuery)}>{verse.identifier}</Themed.div></td>
-        <td style={tdStyle}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.blockchainQuery)}>{allBibles[0].verses[getVerseNumber(verse.identifier)].text}</Themed.div></td>
-        <td style={tdStyle}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.blockchainQuery)}><CheckMark isChecked={verse.blockchainQuery.BIBLE_VERSE == allBibles[0].verses[getVerseNumber(verse.identifier)].text}/></Themed.div></td>
+        <td style={tdStyle}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.blockchainQuery)}>{allBibles[getVerseIdentifiers(verse.identifier).bible].verses[getVerseNumber(verse.identifier)].text}</Themed.div></td>
+        <td style={tdStyle}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.blockchainQuery)}><CheckMark isChecked={verse.blockchainQuery.BIBLE_VERSE == allBibles[getVerseIdentifiers(verse.identifier).bible].verses[getVerseNumber(verse.identifier)].text}/></Themed.div></td>
         <td style={tdStyle}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.blockchainQuery)}><CheckMark isChecked={verse.blockchainQuery.BIBLE_VERSE_LOCKED??false}/></Themed.div></td>
       </tr>)
       }

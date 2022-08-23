@@ -38,7 +38,8 @@ export function getVerseNumber(verseIdentifier: String) {
 }
 
 export function getVerseIdentifiers(verseIdentifier: String) {
-    return verseIdentifier.match(/[^-]/g)
+    let ids = verseIdentifier.match(/(\d+)/g);
+    return {book: ids[0], chapter: ids[1], verse: ids[2], bible: ids[3]}
 }
 
 export function getNumberOfChaptersInBook(bookName: String) {
