@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import * as React from "react"
-import { jsx, Themed } from "theme-ui"
+import { jsx, Themed, useColorMode } from "theme-ui"
 import { allBibles, getVerseNumber, getVerseIdentifiers } from "../../utils/bibleBlockchainInteraction"
 import CheckMark from "./checkmark"
 import useSiteMetadata from "../hooks/use-site-metadata"
@@ -32,10 +32,12 @@ const tdStyle = {
   borderRight: "1px solid #dddddd"
 }
 const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{}}: VerseDialogProps) => {
+  const [colorMode, setColorMode] = useColorMode()
+  const isDark = colorMode === `dark`
   return (
   <React.Fragment>
     <div style={{backgroundColor: "#0005", position: "fixed", width: "100%", height: "100%", top: 0, left: 0}} onClick={onBack}>
-    <Themed.div style={{ backgroundColor: "#000f", position: "fixed", width: "50%", height: "75%", top: "50%", left: "50%", transform: "translate(-50%, -50%)"}} onClick={(e) => e.stopPropagation()}>
+    <Themed.div style={{ backgroundColor: isDark?"#1a202c":"#ffff", position: "fixed", width: "50%", height: "75%", top: "50%", left: "50%", transform: "translate(-50%, -50%)"}} onClick={(e) => e.stopPropagation()}>
         {/* Close Button */}
         <Themed.div onClick={onBack}>
           <span style={{...crossStyles, position: "relative", left: "45%", width: "10%", height: "10%"}} className="crosssign" alt="no">
@@ -109,10 +111,10 @@ const VerseEntry = ({verses = [{identifier: "1-1-1-0", blockchainQuery: {}}], on
       {
       verses.map(verse=>
       <tr key={verse.identifier} style={{trStyle}}>
-        <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>{verse.identifier}</Themed.div></td>
+        <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.blockchainQuery)}>{verse.identifier}</Themed.div></td>
         <td style={tdStyle}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.blockchainQuery)}>{allBibles[0].verses[getVerseNumber(verse.identifier)].text}</Themed.div></td>
-        <td style={tdStyle}><Themed.div><CheckMark isChecked={verse.blockchainQuery.BIBLE_VERSE == allBibles[0].verses[getVerseNumber(verse.identifier)].text}/></Themed.div></td>
-        <td style={tdStyle}><Themed.div><CheckMark isChecked={verse.blockchainQuery.BIBLE_VERSE_LOCKED??false}/></Themed.div></td>
+        <td style={tdStyle}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.blockchainQuery)}><CheckMark isChecked={verse.blockchainQuery.BIBLE_VERSE == allBibles[0].verses[getVerseNumber(verse.identifier)].text}/></Themed.div></td>
+        <td style={tdStyle}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.blockchainQuery)}><CheckMark isChecked={verse.blockchainQuery.BIBLE_VERSE_LOCKED??false}/></Themed.div></td>
       </tr>)
       }
     </tbody>
