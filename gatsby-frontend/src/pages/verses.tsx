@@ -27,7 +27,7 @@ type AvatarStaticQuery = {
     }
   }
 }
-async function getVerseStatus(network = "ethereum-goerli", verseIdentifiers = [{identifier: "1-1-1-0", isDeployed: false, isLocked: false}], setVersesState) {
+async function getVerseStatus(network = "ethereum-goerli", verseIdentifiers = [{identifier: "1-1-1-0", blockchainQuery: {}}], setVersesState) {
   //const provider = new ethers.providers.Web3Provider(window.ethereum)
   //const provider = new ethers.providers.EtherscanProvider(ethers.providers.getNetwork("goerli"));
   //const provider = new ethers.providers.AlchemyProvider("maticmum", "APP_KEY");
@@ -39,7 +39,7 @@ async function getVerseStatus(network = "ethereum-goerli", verseIdentifiers = [{
   const provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com");
   const abi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"ADMINS","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"","type":"string"}],"name":"BIBLE_VERSES","outputs":[{"internalType":"string","name":"BIBLE_VERSE","type":"string"},{"internalType":"bool","name":"BIBLE_VERSE_LOCKED","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"SUPER_ADMIN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newAdminAddress","type":"address"},{"internalType":"bool","name":"shouldSetAsAdmin","type":"bool"}],"name":"addNewAdmin","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"lockBibleVerse","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"string","name":"verse","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"updateBibleVerse","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"nonpayable","type":"function"}]
   const Bible = new ethers.Contract("0xfded1e73b71c1cc2f177789bcc0db3fa55912eda", abi, provider); // use signer instead of provider for write/sending ETH transactions
-  setVersesState(verseIdentifiers.map(async verseIdentifier=>{let result = (await Bible.BIBLE_VERSES(verseIdentifier.identifier)).BIBLE_VERSE_LOCKED;return {identifier: verseIdentifier.identifier, isDeployed: result, isLocked: result}}));
+  setVersesState(verseIdentifiers.map(async verseIdentifier=>{let result = (await Bible.BIBLE_VERSES(verseIdentifier.identifier)).BIBLE_VERSE_LOCKED;return {identifier: verseIdentifier.identifier, blockchainQuery: result}}));
 }
 
 const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) => {
@@ -56,8 +56,8 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
   const defaultVerse = (0 <= parseInt(params.get("verse")) && parseInt(params.get("verse")) <= ImportFunctions.getNumberOfVersesInChapterInBook(defaultChapter,defaultBook))?parseInt(params.get("verse")):0;
   const [stateVerse, setStateVerse] = React.useState({bible: defaultBible, book: defaultBook, chapter: defaultChapter, verse: defaultVerse});
 
-  const [versesState, setVersesState] = React.useState((stateVerse.verse == 0)?Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1).map(verseNumber=>{return {identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: false, isLocked: false}})
-  :[{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: false, isLocked: false}])
+  const [versesState, setVersesState] = React.useState((stateVerse.verse == 0)?Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1).map(verseNumber=>{return {identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible), blockchainQuery: {}}})
+  :[{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), blockchainQuery: {}}])
 
   const [isLoading, setLoadingState] = React.useState(true);
 
@@ -104,18 +104,21 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
 
   React.useEffect(()=>{(async ()=>{
     setLoadingState(true);
-    let res = [{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED, isLocked: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED}];
+    let res = [{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), blockchainQuery: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible)))}];
     if (stateVerse.verse == 0) {
       let tempArray = Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1);
       let verseArray = []
       for(let verseNumber of tempArray){
         let tempIdentifier = ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+verseNumber+"-"+ImportFunctions.getBibleId(stateVerse.bible);
-        let tempResult = (await Bible.BIBLE_VERSES(tempIdentifier)).BIBLE_VERSE_LOCKED;
-        verseArray = verseArray.concat([{identifier: tempIdentifier, isDeployed: tempResult, isLocked: (await Bible.BIBLE_VERSES(tempIdentifier)).BIBLE_VERSE_LOCKED}]);
+        let tempResult = await Bible.BIBLE_VERSES(tempIdentifier);
+        verseArray = verseArray.concat([{identifier: tempIdentifier, blockchainQuery: tempResult}]);
       }
       res = verseArray;
     }
-    else {res = [{identifier: ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible), isDeployed: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED, isLocked: (await Bible.BIBLE_VERSES(""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible))).BIBLE_VERSE_LOCKED}]}
+    else {
+      let tempIdentifier = ""+ImportFunctions.getBookNumber(stateVerse.book)+"-"+stateVerse.chapter+"-"+stateVerse.verse+"-"+ImportFunctions.getBibleId(stateVerse.bible)
+      let tempResult = await Bible.BIBLE_VERSES(tempIdentifier)
+      res = [{identifier: tempIdentifier, blockchainQuery: tempResult}]}
     setVersesState(res);
     setLoadingState(false);
   })()},[stateVerse]);

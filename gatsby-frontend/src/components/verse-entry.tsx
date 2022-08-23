@@ -10,15 +10,13 @@ import crossStyles from "./css/crossmark.css"
 type VerseEntryProps = {
   verses: {
     identifier: string,
-    isDeployed: boolean,
-    isLocked: boolean
+    blockchainQuery: Object
   }[],
   onClick?: Function
 }
 type VerseDialogProps = {
   verseIdentifier: string,
-  isDeployed: boolean,
-  isLocked: boolean,
+  blockchainQuery: Object,
   onBack: Function
 }
 
@@ -33,7 +31,7 @@ const tdStyle = {
   borderBottom: "1px solid #dddddd",
   borderRight: "1px solid #dddddd"
 }
-const VerseDialog = ({verseIdentifier = "", isDeployed = false, isLocked = false, onBack = ()=>{}}: VerseDialogProps) => {
+const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{}}: VerseDialogProps) => {
   return (
   <React.Fragment>
     <div style={{backgroundColor: "#0005", position: "fixed", width: "100%", height: "100%", top: 0, left: 0}} onClick={onBack}>
@@ -58,11 +56,11 @@ const VerseDialog = ({verseIdentifier = "", isDeployed = false, isLocked = false
           </tr>
           <tr key={verseIdentifier} style={{trStyle}}>
             <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Verse on Blockchain</Themed.div></td>
-            <td style={tdStyle}><Themed.div>{allBibles[0].verses[getVerseNumber(verseIdentifier)].text}</Themed.div></td>
+            <td style={tdStyle}><Themed.div>{blockchainQuery.BIBLE_VERSE}</Themed.div></td>
           </tr>
           <tr key={verseIdentifier} style={{trStyle}}>
             <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Is Locked</Themed.div></td>
-            <td style={tdStyle}><Themed.div><CheckMark isChecked={isLocked}/></Themed.div></td>
+            <td style={tdStyle}><Themed.div><CheckMark isChecked={blockchainQuery.BIBLE_VERSE_LOCKED??false}/></Themed.div></td>
           </tr>
         </tbody>
       </table>
@@ -77,10 +75,10 @@ const VerseDialog = ({verseIdentifier = "", isDeployed = false, isLocked = false
 )
 }
 
-const VerseEntry = ({verses = [{identifier: "1-1-1-0", isDeployed: false, isLocked: false}], onClick = ()=>{}}: VerseEntryProps) => {
-  const [selectedVerse, setSelectedVerse] = React.useState({isSelected: false, verseIdentifier: "", isDeployed: false, isLocked: false})
-  const handleVerseClicked = (isSelected, verseIdentifier, isDeployed, isLocked) =>{
-    setSelectedVerse({isSelected, verseIdentifier, isDeployed, isLocked});
+const VerseEntry = ({verses = [{identifier: "1-1-1-0", blockchainQuery: {}}], onClick = ()=>{}}: VerseEntryProps) => {
+  const [selectedVerse, setSelectedVerse] = React.useState({isSelected: false, verseIdentifier: "", blockchainQuery: {}})
+  const handleVerseClicked = (isSelected, verseIdentifier, blockchainQuery) =>{
+    setSelectedVerse({isSelected, verseIdentifier, blockchainQuery});
   }
   const handleDialogClosed = (e, data) =>{
     setSelectedVerse({...selectedVerse, isSelected: false});
@@ -102,14 +100,14 @@ const VerseEntry = ({verses = [{identifier: "1-1-1-0", isDeployed: false, isLock
       verses.map(verse=>
       <tr key={verse.identifier} style={{trStyle}}>
         <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>{verse.identifier}</Themed.div></td>
-        <td style={tdStyle}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.isDeployed, verse.isLocked)}>{allBibles[0].verses[getVerseNumber(verse.identifier)].text}</Themed.div></td>
-        <td style={tdStyle}><Themed.div><CheckMark isChecked={verse.isDeployed}/></Themed.div></td>
-        <td style={tdStyle}><Themed.div><CheckMark isChecked={verse.isLocked}/></Themed.div></td>
+        <td style={tdStyle}><Themed.div onClick={()=>handleVerseClicked(true, verse.identifier, verse.blockchainQuery)}>{allBibles[0].verses[getVerseNumber(verse.identifier)].text}</Themed.div></td>
+        <td style={tdStyle}><Themed.div><CheckMark isChecked={verse.blockchainQuery.BIBLE_VERSE_LOCKED??false}/></Themed.div></td>
+        <td style={tdStyle}><Themed.div><CheckMark isChecked={verse.blockchainQuery.BIBLE_VERSE_LOCKED??false}/></Themed.div></td>
       </tr>)
       }
     </tbody>
     </table>
-    {selectedVerse.isSelected?<VerseDialog verseIdentifier={selectedVerse.verseIdentifier} isDeployed={selectedVerse.isDeployed} isLocked={selectedVerse.isLocked} onBack={handleDialogClosed}/>:""}
+    {selectedVerse.isSelected?<VerseDialog verseIdentifier={selectedVerse.verseIdentifier} blockchainQuery={selectedVerse.blockchainQuery} onBack={handleDialogClosed}/>:""}
     </React.Fragment>
   )
 }
