@@ -172,13 +172,17 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
                   <div className="row">
                       <h4 style={{textAlign:"center"}}>Track all the bible verses that are deployed!</h4>
                   </div>
-                  <div style={{display: "flex", justifyContent: "space-evenly"}}>
-                    <DropDown list={bibles} placeholder={stateVerse.bible} shouldSortList={true} fieldName={"bible"} onChange={handleComboBoxChange}/>
-                    <DropDown list={books} placeholder={stateVerse.book} fieldName={"book"} onChange={handleComboBoxChange}/>
-                    <DropDown list={Array(ImportFunctions.getNumberOfChaptersInBook(stateVerse.book)).fill().map((v,i)=>i+1+"")} placeholder={stateVerse.chapter+""} fieldName={"chapter"} onChange={handleComboBoxChange}/>
-                    <DropDown list={[0+""].concat(Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1+""))} placeholder={stateVerse.verse+""} fieldName={"verse"} onChange={handleComboBoxChange}/>
-                  </div>
-                  {(isLoading)?<Themed.div className="loading" style={loadingStyle}>Loading</Themed.div>:<VerseEntry verses={versesState}/>}
+                  {(!isLoading)?
+                  <React.Fragment>
+                    <div style={{display: "flex", justifyContent: "space-evenly"}}>
+                      <DropDown list={bibles} placeholder={stateVerse.bible} shouldSortList={true} fieldName={"bible"} onChange={handleComboBoxChange}/>
+                      <DropDown list={books} placeholder={stateVerse.book} fieldName={"book"} onChange={handleComboBoxChange}/>
+                      <DropDown list={Array(ImportFunctions.getNumberOfChaptersInBook(stateVerse.book)).fill().map((v,i)=>i+1+"")} placeholder={stateVerse.chapter+""} fieldName={"chapter"} onChange={handleComboBoxChange}/>
+                      <DropDown list={[0+""].concat(Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1+""))} placeholder={stateVerse.verse+""} fieldName={"verse"} onChange={handleComboBoxChange}/>
+                    </div>
+                    <VerseEntry verses={versesState}/>
+                  </React.Fragment>
+                  :<Themed.div className="loading" style={loadingStyle}>Loading {stateVerse.book} {stateVerse.chapter}{(stateVerse.verse>0)?":"+stateVerse.verse:""}</Themed.div>}
           </animated.div>
         </div>
       </Container>
