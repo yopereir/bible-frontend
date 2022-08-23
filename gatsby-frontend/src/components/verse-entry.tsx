@@ -45,15 +45,23 @@ const VerseDialog = ({verseIdentifier = "", isDeployed = false, isLocked = false
         </span>
       </Themed.div>
       <table style={{styles}}>
-        <thead>
-          <tr>
-            <th style={{borderTop: "1px solid #dddddd",borderLeft: "1px solid #dddddd",...tdStyle}}>Verse Identifier</th>
-            <th style={{borderTop: "1px solid #dddddd",...tdStyle}}>Verse</th>
-            <th style={{borderTop: "1px solid #dddddd",...tdStyle}}>Is Deployed</th>
-            <th style={{borderTop: "1px solid #dddddd",...tdStyle}}>Is Locked</th>
-          </tr>
-        </thead>
         <tbody>
+          <tr key={verseIdentifier} style={{trStyle}}>
+            <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Verse Identifier</Themed.div></td>
+            <td style={tdStyle}><Themed.div>{verseIdentifier}</Themed.div></td>
+          </tr>
+          <tr key={verseIdentifier} style={{trStyle}}>
+            <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Reference Verse</Themed.div></td>
+            <td style={tdStyle}><Themed.div>{allBibles[0].verses[getVerseNumber(verseIdentifier)].text}</Themed.div></td>
+          </tr>
+          <tr key={verseIdentifier} style={{trStyle}}>
+            <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Verse on Blockchain</Themed.div></td>
+            <td style={tdStyle}><Themed.div>{allBibles[0].verses[getVerseNumber(verseIdentifier)].text}</Themed.div></td>
+          </tr>
+          <tr key={verseIdentifier} style={{trStyle}}>
+            <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Is Locked</Themed.div></td>
+            <td style={tdStyle}><Themed.div><CheckMark isChecked={isLocked}/></Themed.div></td>
+          </tr>
           <tr key={verseIdentifier} style={{trStyle}}>
             <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>{verseIdentifier}</Themed.div></td>
             <td style={tdStyle}><Themed.div>{allBibles[0].verses[getVerseNumber(verseIdentifier)].text}</Themed.div></td>
