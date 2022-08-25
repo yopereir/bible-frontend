@@ -6,6 +6,7 @@ import CheckMark from "./checkmark"
 import useSiteMetadata from "../hooks/use-site-metadata"
 import styles from "./css/table.css"
 import crossStyles from "./css/crossmark.css"
+import { ethers } from "ethers";
 
 type VerseEntryProps = {
   verses: {
@@ -34,6 +35,49 @@ const tdStyle = {
 const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{}}: VerseDialogProps) => {
   const [colorMode, setColorMode] = useColorMode()
   const isDark = colorMode === `dark`
+  const [transactionLoadingMessage, setTransactionLoadingMessage] = React.useState("");
+  const deployButtonClicked = async () => {
+    //const provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com");
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner((await provider.send("eth_requestAccounts", []))[0]);
+    const abi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"ADMINS","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"","type":"string"}],"name":"BIBLE_VERSES","outputs":[{"internalType":"string","name":"BIBLE_VERSE","type":"string"},{"internalType":"bool","name":"BIBLE_VERSE_LOCKED","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"SUPER_ADMIN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newAdminAddress","type":"address"},{"internalType":"bool","name":"shouldSetAsAdmin","type":"bool"}],"name":"addNewAdmin","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"lockBibleVerse","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"string","name":"verse","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"updateBibleVerse","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"nonpayable","type":"function"}]
+    const Bible = new ethers.Contract("0xfded1e73b71c1cc2f177789bcc0db3fa55912eda", abi, signer);
+
+    window.ethereum.request({
+      method: "wallet_addEthereumChain",
+      params: [{
+          chainId: "0x13881",
+          rpcUrls: ["https://matic-mumbai.chainstacklabs.com"],
+          chainName: "Mumbai",
+          nativeCurrency: {
+              name: "MATIC",
+              symbol: "MATIC",
+              decimals: 18
+          },
+          blockExplorerUrls: ["https://mumbai.polygonscan.com"]
+      }]
+  });
+    /*
+    window.ethereum.request({
+      method: "wallet_addEthereumChain",
+      params: [{
+          chainId: "0x89",
+          rpcUrls: ["https://rpc-mainnet.matic.network/"],
+          chainName: "Matic Mainnet",
+          nativeCurrency: {
+              name: "MATIC",
+              symbol: "MATIC",
+              decimals: 18
+          },
+          blockExplorerUrls: ["https://polygonscan.com/"]
+      }]
+  });
+*/
+    let tx = await Bible.updateBibleVerse(verseIdentifier, allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text, true)
+    await tx.wait();
+    console.log(tx);
+  }
+
   return (
   <React.Fragment>
     <div style={{backgroundColor: "#0005", position: "fixed", width: "100%", height: "100%", top: 0, left: 0}} onClick={onBack}>
@@ -75,7 +119,7 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
           </tbody>
         </table>
         {/* Deploy Button */}
-        {(!blockchainQuery.BIBLE_VERSE_LOCKED)?<button type="submit" value="Send Email" style={{...crossStyles, maxWidth:"25vw"}} class="btn-lrg submit-btn">Deploy</button>:<p></p>}
+        {(!blockchainQuery.BIBLE_VERSE_LOCKED)?<button type="submit" value="Send Email" style={{...crossStyles, maxWidth:"25vw"}} class="btn-lrg submit-btn" onClick={deployButtonClicked}>Deploy</button>:<p></p>}
         {/* Support links: common for all states */}
         <Themed.p style={{margin: "0"}}>Support the project by donating:</Themed.p>
         <Themed.p style={{margin: "0"}}>ETH: {useSiteMetadata().donationAddressEth}</Themed.p>
