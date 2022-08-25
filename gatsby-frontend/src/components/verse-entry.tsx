@@ -6,6 +6,7 @@ import CheckMark from "./checkmark"
 import useSiteMetadata from "../hooks/use-site-metadata"
 import styles from "./css/table.css"
 import crossStyles from "./css/crossmark.css"
+import loadingStyle from "./css/loading.css"
 import { ethers } from "ethers";
 
 type VerseEntryProps = {
@@ -35,7 +36,7 @@ const tdStyle = {
 const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{}}: VerseDialogProps) => {
   const [colorMode, setColorMode] = useColorMode()
   const isDark = colorMode === `dark`
-  const [transactionLoadingMessage, setTransactionLoadingMessage] = React.useState("");
+  const [transactionLoadingMessage, setTransactionLoadingMessage] = React.useState({state: "", hash: ""});
   const deployButtonClicked = async () => {
     //const provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com");
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -73,8 +74,10 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
       }]
   });
 */
-    let tx = await Bible.updateBibleVerse(verseIdentifier, allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text, true)
+    setTransactionLoadingMessage({state: "Deploying", hash: ""});
+    let tx = await Bible.updateBibleVerse(verseIdentifier, allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text, true);
     await tx.wait();
+    setTransactionLoadingMessage({state: "Deployed", hash: tx.hash});
     console.log(tx);
   }
 
@@ -82,49 +85,62 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
   <React.Fragment>
     <div style={{backgroundColor: "#0005", position: "fixed", width: "100%", height: "100%", top: 0, left: 0}} onClick={onBack}>
     <Themed.div style={{ backgroundColor: isDark?"#1a202c":"#ffff", position: "fixed", width: "50%", height: "75%", top: "50%", left: "50%", transform: "translate(-50%, -50%)"}} onClick={(e) => e.stopPropagation()}>
-        {/* Close Button */}
-        <Themed.div onClick={onBack}>
-          <span style={{...crossStyles, position: "relative", left: "45%", width: "10%", height: "10%"}} className="crosssign" alt="no">
-              <div className="crosssign_stem" style={{width: "2em", height: ".2em"}}></div>
-              <div className="crosssign_stem2" style={{width: ".2em", height: "2em"}}></div>
-          </span>
-        </Themed.div>
-
-        <Themed.div style={{position: "relative", bottom: "0%"}}>
-        {/* Heading */}
-        <Themed.p>{(!blockchainQuery.BIBLE_VERSE_LOCKED)
-        ?((blockchainQuery.BIBLE_VERSE == allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text)
-          ?"Verse was deployed but not locked"
-          :"Verse is not deployed")
-        :"Verse is locked"}</Themed.p>
-        {/* Table */}
-        <table style={{margin: "auto",width: "90%",...styles}}>
-          <tbody>
-            <tr key={verseIdentifier} style={{trStyle}}>
-              <td style={{borderLeft: "1px solid #dddddd",borderTop: "1px solid #dddddd",...tdStyle}}><Themed.div>Verse Identifier</Themed.div></td>
-              <td style={{borderTop: "1px solid #dddddd",...tdStyle}}><Themed.div>{verseIdentifier}</Themed.div></td>
-            </tr>
-            <tr key={verseIdentifier} style={{trStyle}}>
-              <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Reference Verse</Themed.div></td>
-              <td style={tdStyle}><Themed.div>{allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text}</Themed.div></td>
-            </tr>
-            <tr key={verseIdentifier} style={{trStyle}}>
-              <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Verse on Blockchain</Themed.div></td>
-              <td style={tdStyle}><Themed.div>{blockchainQuery.BIBLE_VERSE}</Themed.div></td>
-            </tr>
-            <tr key={verseIdentifier} style={{trStyle}}>
-              <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Is Locked</Themed.div></td>
-              <td style={tdStyle}><Themed.div><CheckMark isChecked={blockchainQuery.BIBLE_VERSE_LOCKED??false}/></Themed.div></td>
-            </tr>
-          </tbody>
-        </table>
-        {/* Deploy Button */}
-        {(!blockchainQuery.BIBLE_VERSE_LOCKED)?<button type="submit" value="Send Email" style={{...crossStyles, maxWidth:"25vw"}} class="btn-lrg submit-btn" onClick={deployButtonClicked}>Deploy</button>:<p></p>}
-        {/* Support links: common for all states */}
-        <Themed.p style={{margin: "0"}}>Support the project by donating:</Themed.p>
-        <Themed.p style={{margin: "0"}}>ETH: {useSiteMetadata().donationAddressEth}</Themed.p>
-        <Themed.p style={{margin: "0"}}>Notice an issue? Let us know or contribute by fixing it yourself on <a target="_blank" rel="noopener noreferrer" href="https://github.com/yopereir/bible-frontend/tree/master/gatsby-frontend">Github</a>.</Themed.p>
+      {/* Close Button */}
+      <Themed.div onClick={onBack}>
+        <span style={{...crossStyles, position: "relative", left: "45%", width: "10%", height: "10%"}} className="crosssign" alt="no">
+            <div className="crosssign_stem" style={{width: "2em", height: ".2em"}}></div>
+            <div className="crosssign_stem2" style={{width: ".2em", height: "2em"}}></div>
+        </span>
       </Themed.div>
+      {(transactionLoadingMessage.state == "Deploying")
+        ?<Themed.div className="loading" style={{position:"relative", bottom: "-30%", ...loadingStyle}}>
+          Deploying transaction to the blockchain network
+        </Themed.div>
+        :(transactionLoadingMessage.state == "Deployed")
+          ?<Themed.div style={{position:"relative", bottom: "-30%"}}>
+            <p>Transaction was deployed to the blockchain network.</p>
+            <p>Thank you for your contribution!</p>
+            <p>You can view your transaction on the network <a href={"https://mumbai.polygonscan.com"+"/tx/"+transactionLoadingMessage.hash}>here</a>.</p>
+            <p><a href="#" onClick={()=>window.location.reload()}>Refresh</a> this page to see the verse status update.</p>
+          </Themed.div>
+          :<Themed.div style={{position: "relative", bottom: "0%"}}>
+            {/* Heading */}
+            <Themed.p>
+              {(!blockchainQuery.BIBLE_VERSE_LOCKED)
+              ?((blockchainQuery.BIBLE_VERSE == allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text)
+                ?"Verse was deployed but not locked"
+                :"Verse is not deployed")
+              :"Verse is locked"}
+            </Themed.p>
+            {/* Table */}
+            <table style={{margin: "auto",width: "90%",...styles}}>
+              <tbody>
+                <tr key={verseIdentifier} style={{trStyle}}>
+                  <td style={{borderLeft: "1px solid #dddddd",borderTop: "1px solid #dddddd",...tdStyle}}><Themed.div>Verse Identifier</Themed.div></td>
+                  <td style={{borderTop: "1px solid #dddddd",...tdStyle}}><Themed.div>{verseIdentifier}</Themed.div></td>
+                </tr>
+                <tr key={verseIdentifier} style={{trStyle}}>
+                  <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Reference Verse</Themed.div></td>
+                  <td style={tdStyle}><Themed.div>{allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text}</Themed.div></td>
+                </tr>
+                <tr key={verseIdentifier} style={{trStyle}}>
+                  <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Verse on Blockchain</Themed.div></td>
+                  <td style={tdStyle}><Themed.div>{blockchainQuery.BIBLE_VERSE}</Themed.div></td>
+                </tr>
+                <tr key={verseIdentifier} style={{trStyle}}>
+                  <td style={{borderLeft: "1px solid #dddddd",...tdStyle}}><Themed.div>Is Locked</Themed.div></td>
+                  <td style={tdStyle}><Themed.div><CheckMark isChecked={blockchainQuery.BIBLE_VERSE_LOCKED??false}/></Themed.div></td>
+                </tr>
+              </tbody>
+            </table>
+            {/* Deploy Button */}
+            {(!blockchainQuery.BIBLE_VERSE_LOCKED)?<button type="submit" value="Send Email" style={{...crossStyles, maxWidth:"25vw"}} class="btn-lrg submit-btn" onClick={deployButtonClicked}>Deploy</button>:<p></p>}
+            {/* Support links: common for all states */}
+            <Themed.p style={{margin: "0"}}>Support the project by donating:</Themed.p>
+            <Themed.p style={{margin: "0"}}>ETH: {useSiteMetadata().donationAddressEth}</Themed.p>
+            <Themed.p style={{margin: "0"}}>Notice an issue? Let us know or contribute by fixing it yourself on <a target="_blank" rel="noopener noreferrer" href="https://github.com/yopereir/bible-frontend/tree/master/gatsby-frontend">Github</a>.</Themed.p>
+          </Themed.div>
+      }
     </Themed.div>
     </div>
   </React.Fragment>
