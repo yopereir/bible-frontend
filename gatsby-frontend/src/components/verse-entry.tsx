@@ -75,7 +75,7 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
   });
 */
     setTransactionLoadingMessage({state: "Deploying", hash: ""});
-    let tx = await Bible.updateBibleVerse(verseIdentifier, allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text, true);
+    let tx = await Bible.updateBibleVerse(verseIdentifier, allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text, true).catch((error)=>setTransactionLoadingMessage({state: "Error", hash: ""}));
     await tx.wait();
     setTransactionLoadingMessage({state: "Deployed", hash: tx.hash});
     console.log(tx);
@@ -106,11 +106,13 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
           :<Themed.div style={{position: "relative", bottom: "0%"}}>
             {/* Heading */}
             <Themed.p>
-              {(!blockchainQuery.BIBLE_VERSE_LOCKED)
-              ?((blockchainQuery.BIBLE_VERSE == allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text)
-                ?"Verse was deployed but not locked"
-                :"Verse is not deployed")
-              :"Verse is locked"}
+              {(transactionLoadingMessage.state == "Error")
+                ?"There was an error in the transaction"
+                :(!blockchainQuery.BIBLE_VERSE_LOCKED)
+                  ?((blockchainQuery.BIBLE_VERSE == allBibles[getVerseIdentifiers(verseIdentifier).bible].verses[getVerseNumber(verseIdentifier)].text)
+                    ?"Verse was deployed but not locked"
+                    :"Verse is not deployed")
+                  :"Verse is locked"}
             </Themed.p>
             {/* Table */}
             <table style={{margin: "auto",width: "90%",...styles}}>

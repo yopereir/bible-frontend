@@ -27,20 +27,6 @@ type AvatarStaticQuery = {
     }
   }
 }
-async function getVerseStatus(network = "ethereum-goerli", verseIdentifiers = [{identifier: "1-1-1-0", blockchainQuery: {}}], setVersesState) {
-  //const provider = new ethers.providers.Web3Provider(window.ethereum)
-  //const provider = new ethers.providers.EtherscanProvider(ethers.providers.getNetwork("goerli"));
-  //const provider = new ethers.providers.AlchemyProvider("maticmum", "APP_KEY");
-  //const signer = new ethers.Wallet("WALLET_PRIVATE_KEY", provider);
-  //const abi = ['function BIBLE_VERSES(string verseIdentifier) public view returns (tuple(string BIBLE_VERSE, bool BIBLE_VERSE_LOCKED) BibleVerse)'];
-  //await provider.send("eth_requestAccounts", []); // connect to signer account. used only for write operations or sending ETH
-  //console.log((await provider.getBalance("ethers.eth")).toString());
-  //await (await provider.sendTransaction(tx)).wait();
-  const provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com");
-  const abi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"ADMINS","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"","type":"string"}],"name":"BIBLE_VERSES","outputs":[{"internalType":"string","name":"BIBLE_VERSE","type":"string"},{"internalType":"bool","name":"BIBLE_VERSE_LOCKED","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"SUPER_ADMIN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newAdminAddress","type":"address"},{"internalType":"bool","name":"shouldSetAsAdmin","type":"bool"}],"name":"addNewAdmin","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"lockBibleVerse","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"string","name":"verse","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"updateBibleVerse","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"nonpayable","type":"function"}]
-  const Bible = new ethers.Contract("0xfded1e73b71c1cc2f177789bcc0db3fa55912eda", abi, provider); // use signer instead of provider for write/sending ETH transactions
-  setVersesState(verseIdentifiers.map(async verseIdentifier=>{let result = (await Bible.BIBLE_VERSES(verseIdentifier.identifier)).BIBLE_VERSE_LOCKED;return {identifier: verseIdentifier.identifier, blockchainQuery: result}}));
-}
 
 const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) => {
   const params = new URLSearchParams(location.search);
