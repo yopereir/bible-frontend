@@ -11,6 +11,7 @@ import DropDown from "../components/dropdown"
 import VerseEntry from "../components/verse-entry"
 import loadingStyle from "../components/css/loading.css"
 import * as ImportFunctions from "../../utils/bibleBlockchainInteraction"
+import networks from "../../data/blockchain_networks.json"
 import { ethers } from "ethers";
 
 type VersesPageProps = {
@@ -34,8 +35,8 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
   const [colorMode, setColorMode] = useColorMode()
   const isDark = colorMode === `dark`
   const [bibles, books] = [ImportFunctions.allBibles.map(bible=>bible.name),ImportFunctions.allBibleBooks.map(book=>book.Name)];
-  const validNetworks = ["polygon-mumbai", "ethereum-mainnet", "ethereum-goerli"];
-  const defaultNetwork = params.get("network")?((validNetworks.map(network=>network.toLowerCase()).indexOf(params.get("network").toLowerCase()) != -1)?validNetworks[validNetworks.map(network=>network.toLowerCase()).indexOf(params.get("network").toLowerCase())]:validNetworks[0]):validNetworks[0];
+  const validNetworks = networks.map(network=>network.name);
+  const defaultNetwork = networks.filter(network=>network.name == (params.get("network")?((validNetworks.map(network=>network.toLowerCase()).indexOf(params.get("network").toLowerCase()) != -1)?validNetworks[validNetworks.map(network=>network.toLowerCase()).indexOf(params.get("network").toLowerCase())]:validNetworks[0]):validNetworks[0]))[0];
   const defaultBible = params.get("bible")?((bibles.map(bible=>bible.toLowerCase()).indexOf(params.get("bible").toLowerCase()) != -1)?bibles[bibles.map(bible=>bible.toLowerCase()).indexOf(params.get("bible").toLowerCase())]:bibles[0]):bibles[0];
   const defaultBook = params.get("book")?((books.map(book=>book.toLowerCase()).indexOf(params.get("book").toLowerCase()) != -1)?books[books.map(book=>book.toLowerCase()).indexOf(params.get("book").toLowerCase())]:books[0]):books[0];
   const defaultChapter = (0 < parseInt(params.get("chapter")) && parseInt(params.get("chapter")) <= ImportFunctions.getNumberOfChaptersInBook(defaultBook))?parseInt(params.get("chapter")):1;
@@ -84,9 +85,9 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
     setStateVerse(tempState);
   }
 
-  const provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com");
+  const provider = new ethers.providers.JsonRpcProvider(defaultNetwork.rpc[0]);
   const abi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"ADMINS","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"","type":"string"}],"name":"BIBLE_VERSES","outputs":[{"internalType":"string","name":"BIBLE_VERSE","type":"string"},{"internalType":"bool","name":"BIBLE_VERSE_LOCKED","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"SUPER_ADMIN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newAdminAddress","type":"address"},{"internalType":"bool","name":"shouldSetAsAdmin","type":"bool"}],"name":"addNewAdmin","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"lockBibleVerse","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"string","name":"verse","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"updateBibleVerse","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"nonpayable","type":"function"}]
-  const Bible = new ethers.Contract("0xfded1e73b71c1cc2f177789bcc0db3fa55912eda", abi, provider);
+  const Bible = new ethers.Contract(defaultNetwork.contractAddress, abi, provider);
 
   React.useEffect(()=>{(async ()=>{
     setLoadingState(true);
@@ -150,7 +151,7 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
         <div sx={{textAlign: "center", mt: 4, mb: [6, 6, 7] }}>
           <animated.div style={titleProps}>
             <Heading as="h1" variant="styles.h1">
-              {defaultNetwork}
+              {defaultNetwork.displayName}
             </Heading>
           </animated.div>
           <animated.div style={infoProps}>
@@ -166,7 +167,7 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
                       <DropDown list={Array(ImportFunctions.getNumberOfChaptersInBook(stateVerse.book)).fill().map((v,i)=>i+1+"")} placeholder={stateVerse.chapter+""} fieldName={"chapter"} onChange={handleComboBoxChange}/>
                       <DropDown list={[0+""].concat(Array(ImportFunctions.getNumberOfVersesInChapterInBook(stateVerse.chapter,stateVerse.book)).fill().map((v,i)=>i+1+""))} placeholder={stateVerse.verse+""} fieldName={"verse"} onChange={handleComboBoxChange}/>
                     </div>
-                    <VerseEntry verses={versesState}/>
+                    <VerseEntry verses={versesState} blockchainNetwork={defaultNetwork}/>
                   </React.Fragment>
                   :<Themed.div className="loading" style={loadingStyle}>Loading {stateVerse.book} {stateVerse.chapter}{(stateVerse.verse>0)?":"+stateVerse.verse:""}</Themed.div>}
           </animated.div>
