@@ -14,12 +14,14 @@ type VerseEntryProps = {
     identifier: string,
     blockchainQuery: Object
   }[],
-  onClick?: Function
+  onClick?: Function,
+  blockchainNetwork: Object
 }
 type VerseDialogProps = {
   verseIdentifier: string,
   blockchainQuery: Object,
-  onBack: Function
+  onBack: Function,
+  blockchainNetwork: Object
 }
 
 const trStyle = {
@@ -33,7 +35,7 @@ const tdStyle = {
   borderBottom: "1px solid #dddddd",
   borderRight: "1px solid #dddddd"
 }
-const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{}}: VerseDialogProps) => {
+const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{}, blockchainNetwork = {}}: VerseDialogProps) => {
   const [colorMode, setColorMode] = useColorMode()
   const isDark = colorMode === `dark`
   const [transactionLoadingMessage, setTransactionLoadingMessage] = React.useState({state: "", hash: ""});
@@ -42,20 +44,16 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner((await provider.send("eth_requestAccounts", []))[0]);
     const abi = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"ADMINS","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"string","name":"","type":"string"}],"name":"BIBLE_VERSES","outputs":[{"internalType":"string","name":"BIBLE_VERSE","type":"string"},{"internalType":"bool","name":"BIBLE_VERSE_LOCKED","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"SUPER_ADMIN","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"newAdminAddress","type":"address"},{"internalType":"bool","name":"shouldSetAsAdmin","type":"bool"}],"name":"addNewAdmin","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"lockBibleVerse","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"string","name":"verseIdentifier","type":"string"},{"internalType":"string","name":"verse","type":"string"},{"internalType":"bool","name":"shouldLockVerse","type":"bool"}],"name":"updateBibleVerse","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"nonpayable","type":"function"}]
-    const Bible = new ethers.Contract("0xfded1e73b71c1cc2f177789bcc0db3fa55912eda", abi, signer);
+    const Bible = new ethers.Contract(blockchainNetwork.contractAddress, abi, signer);
 
     window.ethereum.request({
       method: "wallet_addEthereumChain",
       params: [{
-          chainId: "0x13881",
-          rpcUrls: ["https://matic-mumbai.chainstacklabs.com"],
-          chainName: "Mumbai",
-          nativeCurrency: {
-              name: "MATIC",
-              symbol: "MATIC",
-              decimals: 18
-          },
-          blockExplorerUrls: ["https://mumbai.polygonscan.com"]
+          chainId: blockchainNetwork.chainId,
+          rpcUrls: blockchainNetwork.rpc,
+          chainName: blockchainNetwork.chainName,
+          nativeCurrency: blockchainNetwork.nativeCurrency,
+          blockExplorerUrls: blockchainNetwork.blockExplorerUrls
       }]
   });
     /*
@@ -94,13 +92,13 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
       </Themed.div>
       {(transactionLoadingMessage.state == "Deploying")
         ?<Themed.div className="loading" style={{position:"relative", bottom: "-30%", ...loadingStyle}}>
-          Deploying transaction to the blockchain network
+          Transaction has been initiated. Waiting for confirmation
         </Themed.div>
         :(transactionLoadingMessage.state == "Deployed")
           ?<Themed.div style={{position:"relative", bottom: "-30%"}}>
-            <p>Transaction was deployed to the blockchain network.</p>
+            <p>Transaction complete.</p>
             <p>Thank you for your contribution!</p>
-            <p>You can view your transaction on the network <a href={"https://mumbai.polygonscan.com"+"/tx/"+transactionLoadingMessage.hash}>here</a>.</p>
+            <p>You can view your transaction on the network <a href={blockchainNetwork.blockExplorerUrls[0]+"/tx/"+transactionLoadingMessage.hash}>here</a>.</p>
             <p><a href="#" onClick={()=>window.location.reload()}>Refresh</a> this page to see the verse status update.</p>
           </Themed.div>
           :<Themed.div style={{position: "relative", bottom: "0%"}}>
@@ -149,7 +147,7 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
 )
 }
 
-const VerseEntry = ({verses = [{identifier: "1-1-1-0", blockchainQuery: {}}], onClick = ()=>{}}: VerseEntryProps) => {
+const VerseEntry = ({verses = [{identifier: "1-1-1-0", blockchainQuery: {}}], onClick = ()=>{}, blockchainNetwork = {}}: VerseEntryProps) => {
   const [selectedVerse, setSelectedVerse] = React.useState({isSelected: false, verseIdentifier: "", blockchainQuery: {}})
   const handleVerseClicked = (isSelected, verseIdentifier, blockchainQuery) =>{
     setSelectedVerse({isSelected, verseIdentifier, blockchainQuery});
@@ -181,7 +179,7 @@ const VerseEntry = ({verses = [{identifier: "1-1-1-0", blockchainQuery: {}}], on
       }
     </tbody>
     </table>
-    {selectedVerse.isSelected?<VerseDialog verseIdentifier={selectedVerse.verseIdentifier} blockchainQuery={selectedVerse.blockchainQuery} onBack={handleDialogClosed}/>:""}
+    {selectedVerse.isSelected?<VerseDialog verseIdentifier={selectedVerse.verseIdentifier} blockchainQuery={selectedVerse.blockchainQuery} onBack={handleDialogClosed} blockchainNetwork={blockchainNetwork}/>:""}
     </React.Fragment>
   )
 }
