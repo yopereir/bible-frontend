@@ -37,9 +37,9 @@ const FAQ = ({Questions = [{question: "Question 1", answer: "Answer 1"}]}: FAQPr
     },[])
   return (
     <React.Fragment>
-        <div className="container"> 
+        <div className="container" style={{width: "80%", margin: "auto"}}>
             <section>
-                <h1>FREQUENTLY ASKED QUESTION<span>S</span></h1>
+                <Themed.h1>FREQUENTLY ASKED QUESTIONS</Themed.h1>
             </section>
             {Questions.map((question)=>
                 <div className="toggle">

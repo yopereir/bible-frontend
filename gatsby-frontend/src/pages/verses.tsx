@@ -2,10 +2,7 @@
 import * as React from "react"
 import { Flex, jsx, Container, Heading, Themed, useColorMode } from "theme-ui"
 import { animated, useSpring, config } from "react-spring"
-import { useStaticQuery, graphql, Link, navigate } from "gatsby"
-import { GatsbyImage, IGatsbyImageData } from "gatsby-plugin-image"
-import LeftArrow from "../assets/left-arrow"
-import useEmiliaConfig from "../hooks/use-emilia-config"
+import BackButton from "../components/backbutton"
 import ColorModeToggle from "../components/colormode-toggle"
 import DropDown from "../components/dropdown"
 import VerseEntry from "../components/verse-entry"
@@ -19,14 +16,6 @@ type VersesPageProps = {
   areas: string[]
   description?: string
   date: string
-}
-
-type AvatarStaticQuery = {
-  file: {
-    childImageSharp: {
-      gatsbyImageData: IGatsbyImageData
-    }
-  }
 }
 
 const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) => {
@@ -51,15 +40,6 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
     e.preventDefault()
     setColorMode(isDark ? `light` : `dark`)
   }
-  const avatar = useStaticQuery<AvatarStaticQuery>(graphql`
-    query {
-      file(name: { eq: "avatar" }) {
-        childImageSharp {
-          gatsbyImageData(layout: FIXED, width: 40, height: 40, quality: 100)
-        }
-      }
-    }
-  `)
 
   const titleProps = useSpring({
     config: config.slow,
@@ -124,37 +104,7 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
       <div style={{ top: "1rem", right: "1rem", position: "absolute", "textAlign": `right`}}><ColorModeToggle isDark={isDark} toggle={toggleColorMode} /></div>
       <Container sx={{ textAlign: `center`, my: 4, zIndex: 10 }}>
         <animated.div style={backButtonProps}>
-          <Link
-            to="/"
-            aria-label={`Back to homepage`}
-            sx={{
-              display: `flex`,
-              alignItems: `center`,
-              color: `text`,
-              width: "20%",
-              textDecoration: `none`,
-              svg: {
-                transition: `transform 0.25s cubic-bezier(0.455, 0.03, 0.515, 0.955)`,
-              },
-              "&:hover, &:focus": { svg: { transform: `translateX(-6px)` } },
-            }}
-          >
-            <LeftArrow />
-            <div
-              sx={{
-                overflow: `hidden`,
-                borderRadius: `full`,
-                width: `40px`,
-                height: `40px`,
-                display: `inline-block`,
-                boxShadow: `md`,
-                mx: 2,
-              }}
-            >
-              <svg fill={isDark?"#fff":"#000"} xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 24 24" width="90%" height="90%"><path d="M 12 2.0996094 L 1 12 L 4 12 L 4 21 L 11 21 L 11 15 L 13 15 L 13 21 L 20 21 L 20 12 L 23 12 L 12 2.0996094 z M 12 4.7910156 L 18 10.191406 L 18 11 L 18 19 L 15 19 L 15 13 L 9 13 L 9 19 L 6 19 L 6 10.191406 L 12 4.7910156 z"/></svg>
-            </div>
-            <span sx={{ fontWeight: `medium` }}>Homepage</span>
-          </Link>
+          <BackButton backButtonText = {"Homepage"} link = {"/"}/>
         </animated.div>
         <div sx={{textAlign: "center", mt: 4, mb: [6, 6, 7] }}>
           <animated.div style={titleProps}>
