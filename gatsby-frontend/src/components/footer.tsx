@@ -1,10 +1,15 @@
 /** @jsx jsx */
-import { Box, jsx, Container, Flex, Link, useColorMode } from "theme-ui"
+import { jsx, Container, Flex, Link, useColorMode } from "theme-ui"
 import useEmiliaConfig from "../hooks/use-emilia-config"
-import ColorModeToggle from "./colormode-toggle"
 // @ts-ignore
-import AboutMeMDX from "../texts/about-me"
 import LinkList from "./linklist"
+
+const links = [
+    {displayName: "About Us", href: "aboutme"},
+    {displayName: "Contact", href: "contact"},
+    {displayName: "FAQ", href: "faq"},
+    {displayName: "GitHub", href: "https://github.com/yopereir/bible-frontend/tree/master/gatsby-frontend", shouldOpenInNewTab: true}
+]
 
 const Footer = () => {
   const { showThemeAuthor } = useEmiliaConfig()
@@ -27,7 +32,7 @@ const Footer = () => {
           >
             <div sx={{ mt: [1, 1] }}>
               <div sx={{ a: { ml: [1, 1], mr: [1, 1] } }}>
-                <LinkList links={[{displayName: "About Us", href: "aboutme"},{displayName: "FAQ", href: "faq"},{displayName: "GitHub", href: "https://github.com/yopereir/bible-frontend/tree/master/gatsby-frontend", shouldOpenInNewTab: true}]} />
+                <LinkList links={links} />
               </div>
               <div sx={{ color: `textMuted` }}>Copyright &copy; {new Date().getFullYear()}. All rights reserved.</div>
             </div>

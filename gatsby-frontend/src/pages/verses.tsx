@@ -5,6 +5,7 @@ import { animated, useSpring, config } from "react-spring"
 import BackButton from "../components/backbutton"
 import ColorModeToggle from "../components/colormode-toggle"
 import DropDown from "../components/dropdown"
+import Layout from "../components/layout"
 import VerseEntry from "../components/verse-entry"
 import loadingStyle from "../components/css/loading.css"
 import * as ImportFunctions from "../../utils/bibleBlockchainInteraction"
@@ -100,12 +101,9 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
     setLoadingState(false);
   })()},[stateVerse]);
   return (
+    <Layout>
     <Flex as="header" variant="layout.header">
-      <div style={{ top: "1rem", right: "1rem", position: "absolute", "textAlign": `right`}}><ColorModeToggle isDark={isDark} toggle={toggleColorMode} /></div>
       <Container sx={{ textAlign: `center`, my: 4, zIndex: 10 }}>
-        <animated.div style={backButtonProps}>
-          <BackButton backButtonText = {"Homepage"} link = {"/"}/>
-        </animated.div>
         <div sx={{textAlign: "center", mt: 4, mb: [6, 6, 7] }}>
           <animated.div style={titleProps}>
             <Heading as="h1" variant="styles.h1">
@@ -132,6 +130,7 @@ const VersesPage = ({ title, areas, description = ``, date }: VersesPageProps) =
         </div>
       </Container>
     </Flex>
+    </Layout>
   )
 }
 
