@@ -1,8 +1,8 @@
 /** @jsx jsx */
 import * as React from "react"
-import { Flex, jsx, Container, Heading, Themed, useColorMode } from "theme-ui"
+import { jsx, Heading, Themed, useColorMode } from "theme-ui"
 import { animated, useSpring, config } from "react-spring"
-import { useStaticQuery, graphql, Link, navigate } from "gatsby"
+import { navigate } from "gatsby"
 import useEmiliaConfig from "../hooks/use-emilia-config"
 import styles from "./css/contact.css"
 import fetch from 'node-fetch';

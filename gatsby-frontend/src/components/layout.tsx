@@ -1,12 +1,10 @@
 /** @jsx jsx */
 import * as React from "react"
-import { Flex, jsx, Container, Heading, Themed, useColorMode } from "theme-ui"
+import { jsx, useColorMode } from "theme-ui"
 import { animated, useSpring, config } from "react-spring"
-import BackButton from "./backbutton"
 import Header from "./header"
 import Footer from "./footer"
 import useEmiliaConfig from "../hooks/use-emilia-config"
-import ColorModeToggle from "./colormode-toggle"
 
 type LayoutProps = {
   showHeader?: boolean,

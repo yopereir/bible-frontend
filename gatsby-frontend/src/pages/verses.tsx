@@ -2,8 +2,6 @@
 import * as React from "react"
 import { Flex, jsx, Container, Heading, Themed, useColorMode } from "theme-ui"
 import { animated, useSpring, config } from "react-spring"
-import BackButton from "../components/backbutton"
-import ColorModeToggle from "../components/colormode-toggle"
 import DropDown from "../components/dropdown"
 import Layout from "../components/layout"
 import VerseEntry from "../components/verse-entry"
