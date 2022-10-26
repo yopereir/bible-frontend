@@ -39,6 +39,19 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
   const [colorMode, setColorMode] = useColorMode()
   const isDark = colorMode === `dark`
   const [transactionLoadingMessage, setTransactionLoadingMessage] = React.useState({state: "", hash: ""});
+  let rpc;
+  React.useEffect(()=>{(async ()=>{
+    for (let i = 0; i < blockchainNetwork.rpc.length; i++) {
+      try {
+        (await (new ethers.providers.JsonRpcProvider(blockchainNetwork.rpc[i])).detectNetwork());
+        rpc = blockchainNetwork.rpc[i];
+        break;
+      } catch {
+        
+      }
+    };
+  })()},[transactionLoadingMessage]);
+
   const deployButtonClicked = async () => {
     //const provider = new ethers.providers.JsonRpcProvider("https://rpc-mumbai.maticvigil.com");
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -50,7 +63,7 @@ const VerseDialog = ({verseIdentifier = "", blockchainQuery = {}, onBack = ()=>{
       method: "wallet_addEthereumChain",
       params: [{
           chainId: blockchainNetwork.chainId,
-          rpcUrls: blockchainNetwork.rpc,
+          rpcUrls: [rpc],
           chainName: blockchainNetwork.chainName,
           nativeCurrency: blockchainNetwork.nativeCurrency,
           blockExplorerUrls: blockchainNetwork.blockExplorerUrls
